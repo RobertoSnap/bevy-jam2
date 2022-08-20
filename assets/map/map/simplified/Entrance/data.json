@@ -1,0 +1,122 @@
+{
+	"x": 64,
+	"y": 16,
+	"width": 576,
+	"height": 320,
+	"iid": "a348f110-66b0-11ec-9cd7-352deb718870",
+	"layers": [
+		"Default_ground.png",
+		"Custom_grounds.png",
+		"Collisions.png",
+		"Custom_tiles.png",
+		"Wall_outlines.png"
+	],
+	"entities": {
+		"Container": [
+			{
+				"id": "Container",
+				"iid": "a3491828-66b0-11ec-9cd7-cb4d33f76ff0",
+				"layer": "Entities",
+				"x": 264,
+				"y": 120,
+				"width": 20,
+				"height": 20,
+				"color": 16765225,
+				"customFields": {
+					"description": null,
+					"label": "???",
+					"loot": [
+						"Battery"
+					]
+				}
+			},
+			{
+				"id": "Container",
+				"iid": "a3491829-66b0-11ec-9cd7-c5b5ed21037f",
+				"layer": "Entities",
+				"x": 328,
+				"y": 168,
+				"width": 20,
+				"height": 20,
+				"color": 16765225,
+				"customFields": {
+					"description": null,
+					"label": "???",
+					"loot": [
+						"Scraps"
+					]
+				}
+			}
+		],
+		"Player": [
+			{
+				"id": "Player",
+				"iid": "a349182a-66b0-11ec-9cd7-2b12f6a4d88b",
+				"layer": "Entities",
+				"x": 88,
+				"y": 168,
+				"width": 16,
+				"height": 16,
+				"color": 248700,
+				"customFields": {
+					"ammo": 10,
+					"life": 100
+				}
+			}
+		],
+		"Door": [
+			{
+				"id": "Door",
+				"iid": "403447a0-66b0-11ec-adb8-d1e486125a8d",
+				"layer": "Entities",
+				"x": 344,
+				"y": 200,
+				"width": 16,
+				"height": 16,
+				"color": 7948569,
+				"customFields": {
+					"lockedWith": null
+				}
+			},
+			{
+				"id": "Door",
+				"iid": "40950540-66b0-11ec-adb8-6f55c0bf8b04",
+				"layer": "Entities",
+				"x": 488,
+				"y": 184,
+				"width": 16,
+				"height": 16,
+				"color": 7948569,
+				"customFields": {
+					"lockedWith": null
+				}
+			},
+			{
+				"id": "Door",
+				"iid": "484fa0b0-66b0-11ec-adb8-650850794064",
+				"layer": "Entities",
+				"x": 440,
+				"y": 136,
+				"width": 16,
+				"height": 16,
+				"color": 7948569,
+				"customFields": {
+					"lockedWith": null
+				}
+			},
+			{
+				"id": "Door",
+				"iid": "a7f1b730-66b0-11ec-adb8-3d95de43ac8f",
+				"layer": "Entities",
+				"x": 168,
+				"y": 168,
+				"width": 16,
+				"height": 16,
+				"color": 7948569,
+				"customFields": {
+					"lockedWith": null
+				}
+			}
+		]
+	}
+}

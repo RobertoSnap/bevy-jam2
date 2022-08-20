@@ -1,0 +1,51 @@
+{
+	"x": 368,
+	"y": 368,
+	"width": 272,
+	"height": 256,
+	"iid": "85fad420-66b0-11ec-adb8-b5aafe4bf8a4",
+	"layers": [
+		"Default_ground.png",
+		"Custom_grounds.png",
+		"Collisions.png",
+		"Custom_tiles.png",
+		"Wall_outlines.png"
+	],
+	"entities": {
+		"Door": [
+			{
+				"id": "Door",
+				"iid": "4af89bb0-66b0-11ec-bae9-e55aacc4379b",
+				"layer": "Entities",
+				"x": 56,
+				"y": 136,
+				"width": 16,
+				"height": 16,
+				"color": 7948569,
+				"customFields": {
+					"lockedWith": "Key"
+				}
+			}
+		],
+		"ElevatorLink": [
+			{
+				"id": "ElevatorLink",
+				"iid": "68bc15a0-66b0-11ec-bae9-e3ce0b9e4f25",
+				"layer": "Entities",
+				"x": 56,
+				"y": 88,
+				"width": 24,
+				"height": 24,
+				"color": 11093680,
+				"customFields": {
+					"destination": {
+						"entityIid": "88352ed0-66b0-11ec-bae9-d1471137867b",
+						"layerIid": "6c2901d1-66b0-11ec-bae9-5b123908ec86",
+						"levelIid": "6c2901d0-66b0-11ec-bae9-73f26d40ba65",
+						"worldIid": "abf1b320-02f0-11ed-bb75-93e499e72b36"
+					}
+				}
+			}
+		]
+	}
+}
