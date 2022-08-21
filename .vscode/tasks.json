@@ -1,0 +1,60 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cargo",
+      "command": "watch",
+      "args": [
+        "-x run client"
+      ],
+      "label": "watch client",
+      "problemMatcher": [
+        "$rustc-watch"
+      ],
+      "presentation": {
+        "group": "game"
+      }
+    },
+    {
+      "type": "cargo",
+      "command": "watch",
+      "args": [
+        "-x run server"
+      ],
+      "label": "watch server",
+      "problemMatcher": [
+        "$rustc-watch"
+      ],
+      "presentation": {
+        "group": "game"
+      }
+    },
+    {
+      "label": "watch",
+      "dependsOn": [
+        "watch server",
+        "watch client"
+      ],
+      "problemMatcher": [
+        "$rustc-watch"
+      ],
+    },
+    {
+      "type": "cargo",
+      "command": "run",
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "label": "cargo run",
+      "dependsOn": "fmt"
+    },
+    {
+      "type": "cargo",
+      "command": "fmt",
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "label": "fmt"
+    }
+  ]
+}

@@ -2454,6 +2454,7 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
  "bevy_renet",
+ "bincode",
  "image",
  "leafwing-input-manager",
  "winit",
