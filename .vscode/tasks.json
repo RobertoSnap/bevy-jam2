@@ -2,31 +2,48 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "watch client",
       "type": "cargo",
       "command": "watch",
       "args": [
         "-x run client"
       ],
-      "label": "watch client",
-      "problemMatcher": [
-        "$rustc-watch"
-      ],
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Compiling",
+          "endsPattern": "Compiling"
+        }
+      },
       "presentation": {
-        "group": "game"
+        "group": "game",
+        "reveal": "silent",
+        "clear": true
       }
     },
     {
+      "label": "watch server",
       "type": "cargo",
       "command": "watch",
       "args": [
         "-x run server"
       ],
-      "label": "watch server",
       "problemMatcher": [
         "$rustc-watch"
       ],
       "presentation": {
-        "group": "game"
+        "group": "game",
+        "reveal": "silent",
+        "clear": true
       }
     },
     {
