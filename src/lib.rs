@@ -7,6 +7,7 @@ mod network {
     pub mod client;
     pub mod error;
     pub mod server;
+    pub mod shared;
 }
 
 pub const LAUNCHER_TITLE: &str = "Jam2";
@@ -24,9 +25,15 @@ pub fn app() -> App {
     println!("is_host: {}", is_host);
     let mut app = App::new();
     app.insert_resource(WindowDescriptor {
-        title: LAUNCHER_TITLE.to_string(),
+        title: vec![LAUNCHER_TITLE, &is_host.to_string()].join(" "),
         canvas: Some("#bevy".to_string()),
         fit_canvas_to_parent: true,
+        position: WindowPosition::At(Vec2::new(
+            0.,
+            if is_host { 0. } else { 400. },
+        )),
+        height: 270.,
+        width: 480.,
         ..Default::default()
     })
     .add_plugins(DefaultPlugins)
