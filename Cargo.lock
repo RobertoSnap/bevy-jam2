@@ -437,6 +437,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_framepace"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "327027bd161a95a03962d03ba4cf71013a8d2500bf288838f6046278806cb383"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_gilrs"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2453,6 +2462,7 @@ dependencies = [
  "bevy",
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
+ "bevy_framepace",
  "bevy_renet",
  "bincode",
  "image",
@@ -3867,7 +3877,7 @@ dependencies = [
  "js-sys",
  "log",
  "naga",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "raw-window-handle",
  "smallvec",
  "wasm-bindgen",
@@ -3892,7 +3902,7 @@ dependencies = [
  "fxhash",
  "log",
  "naga",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "profiling",
  "raw-window-handle",
  "smallvec",
@@ -3928,7 +3938,7 @@ dependencies = [
  "metal",
  "naga",
  "objc",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "profiling",
  "range-alloc",
  "raw-window-handle",

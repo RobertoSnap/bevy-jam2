@@ -1,4 +1,8 @@
 use bevy::prelude::*;
+use leafwing_input_manager::{
+    action_state::ActionDiff, prelude::InputManagerPlugin,
+    systems::process_action_diffs,
+};
 use std::{net::UdpSocket, time::SystemTime};
 
 use bevy_renet::{
@@ -9,7 +13,11 @@ use bevy_renet::{
     RenetServerPlugin,
 };
 
-use crate::{network::shared::ServerMessages, player::Player};
+use crate::{
+    input::{Action, StableId},
+    network::shared::ServerMessages,
+    player::Player,
+};
 
 use crate::network::shared::Lobby;
 pub struct ServerPlugin;
@@ -24,7 +32,13 @@ impl Plugin for ServerPlugin {
             .insert_resource(new_renet_server())
             .add_system(send_message_system)
             .add_system(receive_message_system)
-            .add_system(handle_events_system)
+            .add_system(update_system)
+            .add_plugin(InputManagerPlugin::<Action>::server())
+            .add_event::<ActionDiff<Action, StableId>>()
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                process_action_diffs::<Action, StableId>,
+            )
             .insert_resource(Lobby::default());
     }
 }
@@ -46,12 +60,13 @@ fn receive_message_system(mut server: ResMut<RenetServer>) {
     }
 }
 
-fn handle_events_system(
+fn update_system(
     mut server_events: EventReader<ServerEvent>,
     mut commands: Commands,
     mut lobby: ResMut<Lobby>,
     mut server: ResMut<RenetServer>,
 ) {
+    // Main server events
     for event in server_events.iter() {
         match event {
             ServerEvent::ClientConnected(id, user_data) => {
@@ -106,6 +121,17 @@ fn handle_events_system(
                     .unwrap();
                 server.broadcast_message(0, message);
             }
+        }
+    }
+
+    // client events
+    for client_id in server.clients_id().into_iter() {
+        while let Some(message) = server.receive_message(client_id, 0) {
+            // let player_input: PlayerInput =
+            //     bincode::deserialize(&message).unwrap();
+            // if let Some(player_entity) = lobby.players.get(&client_id) {
+            //     commands.entity(*player_entity).insert(player_input);
+            // }
         }
     }
 }

@@ -5,8 +5,17 @@ use bevy_renet::{
     renet::{ClientAuthentication, RenetClient, RenetConnectionConfig},
     run_if_client_connected, RenetClientPlugin,
 };
+use leafwing_input_manager::{
+    action_state::ActionDiff,
+    prelude::{ActionState, InputManagerPlugin, InputMap},
+    systems::generate_action_diffs,
+    InputManagerBundle,
+};
 
-use crate::player::Player;
+use crate::{
+    input::{Action, StableId},
+    player::Player,
+};
 
 use super::shared::{Lobby, ServerMessages};
 
@@ -21,7 +30,13 @@ impl Plugin for ClientPlugin {
             .insert_resource(Lobby::default())
             .add_system(
                 client_sync_players.with_run_criteria(run_if_client_connected),
-            );
+            )
+            .add_plugin(InputManagerPlugin::<Action>::default())
+            .add_system_to_stage(
+                CoreStage::PostUpdate,
+                generate_action_diffs::<Action, StableId>,
+            )
+            .add_event::<ActionDiff<Action, StableId>>();
     }
 }
 
@@ -33,6 +48,8 @@ fn client_sync_players(
     mut lobby: ResMut<Lobby>,
 ) {
     while let Some(message) = client.receive_message(0) {
+        use Action::*;
+        use KeyCode::*;
         let server_message = bincode::deserialize(&message).unwrap();
         match server_message {
             ServerMessages::PlayerConnected { id } => {
@@ -49,6 +66,16 @@ fn client_sync_players(
                             ..default()
                         },
                         ..default()
+                    })
+                    .insert_bundle(InputManagerBundle {
+                        input_map: InputMap::new([
+                            (W, MoveLeft),
+                            (D, MoveRight),
+                            (Space, Jump),
+                        ])
+                        .insert(MouseButton::Left, Shoot)
+                        .build(),
+                        action_state: ActionState::default(),
                     })
                     .insert(Player { id: id })
                     .id();
