@@ -22,10 +22,14 @@ pub fn app() -> App {
         "server" => true,
         _ => panic!("Invalid argument, must be \"client\" or \"server\"."),
     };
+    let server_string = match is_host {
+        true => "server",
+        false => "client",
+    };
     println!("is_host: {}", is_host);
     let mut app = App::new();
     app.insert_resource(WindowDescriptor {
-        title: vec![LAUNCHER_TITLE, &is_host.to_string()].join(" "),
+        title: vec![LAUNCHER_TITLE, server_string].join(" "),
         canvas: Some("#bevy".to_string()),
         fit_canvas_to_parent: true,
         position: WindowPosition::At(Vec2::new(
