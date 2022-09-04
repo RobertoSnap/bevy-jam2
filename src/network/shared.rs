@@ -6,9 +6,12 @@ use std::collections::HashMap;
 pub enum ServerMessages {
     PlayerConnected { id: u64 },
     PlayerDisconnected { id: u64 },
+    PlayerJump { id: u64 },
 }
 
 #[derive(Debug, Default)]
 pub struct Lobby {
     pub players: HashMap<u64, Entity>,
 }
+#[derive(Debug, Default)]
+pub struct PlayerID(pub u64);

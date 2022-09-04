@@ -17,7 +17,7 @@ use crate::{
     player::Player,
 };
 
-use super::shared::{Lobby, ServerMessages};
+use super::shared::{Lobby, PlayerID, ServerMessages};
 
 pub struct ClientPlugin;
 
@@ -28,6 +28,7 @@ impl Plugin for ClientPlugin {
         app.add_plugin(RenetClientPlugin)
             .insert_resource(new_renet_client())
             .insert_resource(Lobby::default())
+            .insert_resource(PlayerID::default())
             .add_system(
                 client_sync_players.with_run_criteria(run_if_client_connected),
             )
@@ -62,7 +63,7 @@ fn client_sync_players(
                         },
                         transform: Transform {
                             scale: Vec3::new(16.0, 16.0, 1.0),
-                            translation: Vec3::new(0.0, 0.0, 10.0),
+                            translation: Vec3::new(10.0, 10.0, 10.0), // REVIEW -  probaly dont want to spawn them here before i got cordinates
                             ..default()
                         },
                         ..default()
@@ -87,6 +88,9 @@ fn client_sync_players(
                 if let Some(player_entity) = lobby.players.remove(&id) {
                     commands.entity(player_entity).despawn();
                 }
+            }
+            ServerMessages::PlayerJump { id } => {
+                println!("SOmeone jumping");
             }
         }
     }
