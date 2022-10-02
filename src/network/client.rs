@@ -1,6 +1,6 @@
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
-use bevy::{math, prelude::*};
+use bevy::prelude::*;
 use bevy_renet::{
     renet::{ClientAuthentication, RenetClient, RenetConnectionConfig},
     run_if_client_connected, RenetClientPlugin,
@@ -17,6 +17,8 @@ use super::shared::{Lobby, NetworkID, ServerMessages};
 use crate::{input::Action, player::Player};
 pub struct ClientPlugin;
 
+pub struct MyNetworkID(u64);
+
 const PROTOCOL_ID: u64 = 7;
 
 impl Plugin for ClientPlugin {
@@ -25,6 +27,7 @@ impl Plugin for ClientPlugin {
             .insert_resource(new_renet_client())
             .insert_resource(Lobby::default())
             .insert_resource(NetworkID::default())
+            .insert_resource(MyNetworkID(0))
             .add_system(
                 client_sync_players.with_run_criteria(run_if_client_connected),
             )
@@ -64,7 +67,7 @@ fn client_sync_players(
         match server_message {
             ServerMessages::PlayerConnected { id } => {
                 println!("Player {} connected.", id);
-                let player_entity = commands
+                let player_id = commands
                     .spawn_bundle(SpriteBundle {
                         sprite: Sprite {
                             color: Color::RED,
@@ -72,26 +75,31 @@ fn client_sync_players(
                         },
                         transform: Transform {
                             scale: Vec3::new(16.0, 16.0, 1.0),
-                            translation: Vec3::new(10.0, 10.0, 10.0), // REVIEW -  probaly dont want to spawn them here before i got cordinates
+                            translation: Vec3::new(0.0, 0.0, 10.0), // REVIEW -  probaly dont want to spawn them here before i got cordinates
                             ..default()
                         },
                         ..default()
-                    })
-                    .insert_bundle(InputManagerBundle {
-                        input_map: InputMap::new([
-                            (A, MoveLeft),
-                            (D, MoveRight),
-                            (Space, Jump),
-                        ])
-                        .insert(MouseButton::Left, Shoot)
-                        .build(),
-                        action_state: ActionState::default(),
                     })
                     .insert(Player { id: id })
                     .insert(NetworkID(id))
                     .id();
 
-                lobby.players.insert(id, player_entity);
+                if client.client_id() == id {
+                    commands.entity(player_id).insert_bundle(
+                        InputManagerBundle {
+                            input_map: InputMap::new([
+                                (A, MoveLeft),
+                                (D, MoveRight),
+                                (Space, Jump),
+                            ])
+                            .insert(MouseButton::Left, Shoot)
+                            .build(),
+                            action_state: ActionState::default(),
+                        },
+                    );
+                }
+
+                lobby.players.insert(id, player_id);
             }
             ServerMessages::PlayerDisconnected { id } => {
                 println!("Player {} disconnected.", id);

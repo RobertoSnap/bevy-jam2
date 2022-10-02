@@ -31,9 +31,9 @@ fn actions(
 ) {
     for mut event in events.iter() {
         if let ActionDiff::Pressed { action, id } = event {
+            println!("{:?}", event.clone());
             if let Some(player) = lobby.players.get(&id.0) {
-                println!("got player");
-                if let Ok(mut transform) = query.get_single_mut() {
+                if let Ok(mut transform) = query.get_mut(*player) {
                     match action {
                         Action::MoveLeft => {
                             println!("Player {} move left", id.0);

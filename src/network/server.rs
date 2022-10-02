@@ -73,7 +73,7 @@ fn update_system(
     // Main server events
     for event in server_events.iter() {
         match event {
-            ServerEvent::ClientConnected(id, user_data) => {
+            ServerEvent::ClientConnected(id, _) => {
                 println!("Client {} connected", id);
                 // spawn player on server
                 let player_entity = commands
