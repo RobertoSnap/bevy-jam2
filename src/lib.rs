@@ -49,6 +49,8 @@ pub fn app() -> App {
         )),
         height: 270.,
         width: 480.,
+        cursor_locked: true,
+        cursor_visible: false,
         ..Default::default()
     })
     .add_plugins(DefaultPlugins)
@@ -59,8 +61,8 @@ pub fn app() -> App {
     // .add_startup_system(setup_graphics)
     .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
     .add_plugin(RapierDebugRenderPlugin::default())
-    .add_plugin(WanderlustPlugin)
     .insert_resource(Sensitivity(1.0))
+    .add_plugin(WanderlustPlugin)
     .add_plugin(map::MapPlugin)
     .add_plugin(input::InputPlugin)
     .add_plugin(player::PlayerPlugin)

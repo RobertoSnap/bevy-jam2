@@ -104,7 +104,7 @@ fn client_sync_players(
                             commands
                                 .spawn_bundle(Camera3dBundle {
                                     transform: Transform::from_xyz(
-                                        0.0, 0.5, 0.0,
+                                        -1.0, 1.5, 2.0,
                                     ),
                                     projection: Projection::Perspective(
                                         PerspectiveProjection {

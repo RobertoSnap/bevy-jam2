@@ -1,15 +1,17 @@
-use bevy::{ecs::bundle, prelude::*};
+use bevy::{ecs::bundle, input::mouse::MouseMotion, prelude::*};
 use bevy_mod_wanderlust::{
     CharacterControllerBundle, ControllerInput, ControllerPhysicsBundle,
     ControllerSettings, ControllerState,
 };
 use bevy_rapier3d::prelude::*;
+use bevy_renet::run_if_client_connected;
 use leafwing_input_manager::action_state::ActionDiff;
 
 use crate::{
     input::Action,
     movement::Movement,
     network::shared::{Lobby, NetworkID},
+    Sensitivity,
 };
 pub struct PlayerPlugin;
 
@@ -19,10 +21,15 @@ pub struct PlayerCam;
 
 #[derive(Component)]
 pub struct Player;
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
+pub struct PlayerBody;
+
 #[derive(Bundle)]
 
 pub struct PlayerBundle {
     pub name: Name,
+    pub body: PlayerBody,
     // pub gravity: GravityScale,
     // pub restitution: Restitution,
     // pub collider: Collider,
@@ -61,6 +68,7 @@ impl PlayerBundle {
             name: Name::from("Player"),
             network_id: NetworkID(network_id),
             player: Player,
+            body: PlayerBody,
             pbr_bundle: PbrBundle {
                 mesh: mesh,
                 material: material,
@@ -75,12 +83,41 @@ impl PlayerBundle {
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup).add_system(actions);
+        app.add_startup_system(setup)
+            .add_system(actions)
+            .add_system(mouse_look.with_run_criteria(run_if_client_connected));
     }
 }
 
 fn setup(mut commands: Commands) {
     //
+}
+
+fn mouse_look(
+    mut cam: Query<&mut Transform, With<PlayerCam>>,
+    mut body: Query<&mut Transform, (With<PlayerBody>, Without<PlayerCam>)>,
+    sensitivity: Res<Sensitivity>,
+    mut input: EventReader<MouseMotion>,
+    time: Res<Time>,
+) {
+    let mut cam_tf = cam.single_mut();
+    let mut body_tf = body.single_mut();
+
+    let sens = sensitivity.0;
+
+    let cumulative: Vec2 = input.iter().map(|motion| &motion.delta).sum();
+
+    // Vertical
+    let rot = cam_tf.rotation;
+    cam_tf.rotate(Quat::from_scaled_axis(
+        rot * Vec3::X * (-cumulative.y / 180.0) * sens,
+    ));
+
+    // Horizontal
+    let rot = body_tf.rotation;
+    body_tf.rotate(Quat::from_scaled_axis(
+        rot * Vec3::Y * (-cumulative.x / 180.0) * sens,
+    ));
 }
 
 fn actions(
