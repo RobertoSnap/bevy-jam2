@@ -13,5 +13,7 @@ pub enum ServerMessages {
 pub struct Lobby {
     pub players: HashMap<u64, Entity>,
 }
-#[derive(Debug, Default)]
-pub struct PlayerID(pub u64);
+#[derive(
+    Component, Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize,
+)]
+pub struct NetworkID(pub u64);

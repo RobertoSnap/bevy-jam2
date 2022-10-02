@@ -1,6 +1,6 @@
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
-use bevy::prelude::*;
+use bevy::{math, prelude::*};
 use bevy_renet::{
     renet::{ClientAuthentication, RenetClient, RenetConnectionConfig},
     run_if_client_connected, RenetClientPlugin,
@@ -12,13 +12,9 @@ use leafwing_input_manager::{
     InputManagerBundle,
 };
 
-use crate::{
-    input::{Action, StableId},
-    player::Player,
-};
+use super::shared::{Lobby, NetworkID, ServerMessages};
 
-use super::shared::{Lobby, PlayerID, ServerMessages};
-
+use crate::{input::Action, player::Player};
 pub struct ClientPlugin;
 
 const PROTOCOL_ID: u64 = 7;
@@ -28,16 +24,29 @@ impl Plugin for ClientPlugin {
         app.add_plugin(RenetClientPlugin)
             .insert_resource(new_renet_client())
             .insert_resource(Lobby::default())
-            .insert_resource(PlayerID::default())
+            .insert_resource(NetworkID::default())
             .add_system(
                 client_sync_players.with_run_criteria(run_if_client_connected),
             )
             .add_plugin(InputManagerPlugin::<Action>::default())
+            // Creates an event stream of `ActionDiffs` to send to the server
             .add_system_to_stage(
                 CoreStage::PostUpdate,
-                generate_action_diffs::<Action, StableId>,
+                generate_action_diffs::<Action, NetworkID>,
             )
-            .add_event::<ActionDiff<Action, StableId>>();
+            .add_event::<ActionDiff<Action, NetworkID>>()
+            .add_system(sync_inputs.with_run_criteria(run_if_client_connected));
+    }
+}
+
+fn sync_inputs(
+    mut events: EventReader<ActionDiff<Action, NetworkID>>,
+    mut client: ResMut<RenetClient>,
+) {
+    // TODO : Send all event batched
+    for mut event in events.iter() {
+        let message = bincode::serialize(event).unwrap();
+        client.send_message(1, message);
     }
 }
 
@@ -70,7 +79,7 @@ fn client_sync_players(
                     })
                     .insert_bundle(InputManagerBundle {
                         input_map: InputMap::new([
-                            (W, MoveLeft),
+                            (A, MoveLeft),
                             (D, MoveRight),
                             (Space, Jump),
                         ])
@@ -79,6 +88,7 @@ fn client_sync_players(
                         action_state: ActionState::default(),
                     })
                     .insert(Player { id: id })
+                    .insert(NetworkID(id))
                     .id();
 
                 lobby.players.insert(id, player_entity);

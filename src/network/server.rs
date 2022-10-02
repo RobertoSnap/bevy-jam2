@@ -13,13 +13,11 @@ use bevy_renet::{
     RenetServerPlugin,
 };
 
-use crate::{
-    input::{Action, StableId},
-    network::shared::ServerMessages,
-    player::Player,
-};
+use crate::{input::Action, network::shared::ServerMessages, player::Player};
 
 use crate::network::shared::Lobby;
+
+use super::shared::NetworkID;
 pub struct ServerPlugin;
 
 const PROTOCOL_ID: u64 = 7;
@@ -31,13 +29,13 @@ impl Plugin for ServerPlugin {
         app.add_plugin(RenetServerPlugin)
             .insert_resource(new_renet_server())
             .add_system(send_message_system)
-            .add_system(receive_message_system)
+            .add_system(sync_input)
             .add_system(update_system)
             .add_plugin(InputManagerPlugin::<Action>::server())
-            .add_event::<ActionDiff<Action, StableId>>()
+            .add_event::<ActionDiff<Action, NetworkID>>()
             .add_system_to_stage(
                 CoreStage::PreUpdate,
-                process_action_diffs::<Action, StableId>,
+                process_action_diffs::<Action, NetworkID>,
             )
             .insert_resource(Lobby::default());
     }
@@ -48,13 +46,19 @@ fn send_message_system(mut server: ResMut<RenetServer>) {
     // Send a text message for all clients
     // server.broadcast_message(channel_id, "server message".as_bytes().to_vec());
 }
-fn receive_message_system(mut server: ResMut<RenetServer>) {
-    let channel_id = 0;
+fn sync_input(
+    mut server: ResMut<RenetServer>,
+    mut events: EventWriter<ActionDiff<Action, NetworkID>>,
+) {
+    let channel_id = 1;
     // Send a text message for all clients
     for client_id in server.clients_id().into_iter() {
         while let Some(message) = server.receive_message(client_id, channel_id)
         {
-            println!("msg from client ");
+            // TODO : Receive all event batched
+            let input: ActionDiff<Action, NetworkID> =
+                bincode::deserialize(&message).unwrap();
+            events.send(input.clone());
             // Handle received message
         }
     }
@@ -71,7 +75,7 @@ fn update_system(
         match event {
             ServerEvent::ClientConnected(id, user_data) => {
                 println!("Client {} connected", id);
-                // spawn player
+                // spawn player on server
                 let player_entity = commands
                     .spawn_bundle(SpriteBundle {
                         sprite: Sprite {
@@ -86,6 +90,7 @@ fn update_system(
                         ..default()
                     })
                     .insert(Player { id: *id })
+                    .insert(NetworkID(*id))
                     .id();
 
                 // init players on client
@@ -98,6 +103,7 @@ fn update_system(
                     server.send_message(*id, 0, message);
                 }
 
+                // Insert player network to entity mapping on server
                 lobby.players.insert(*id, player_entity);
 
                 // Init player on other clients

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-
+use bevy_framepace;
 mod input;
 mod map;
 mod player;
@@ -41,6 +41,7 @@ pub fn app() -> App {
         ..Default::default()
     })
     .add_plugins(DefaultPlugins)
+    .add_plugin(bevy_framepace::FramepacePlugin)
     .add_plugin(map::MapPlugin)
     .add_plugin(input::InputPlugin)
     .add_plugin(player::PlayerPlugin);
