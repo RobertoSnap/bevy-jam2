@@ -1,6 +1,8 @@
 use std::{collections::HashMap, net::UdpSocket, time::SystemTime};
 
 use bevy::prelude::*;
+use bevy::render::camera::Projection;
+use bevy_rapier3d::prelude::*;
 use bevy_renet::{
     renet::{ClientAuthentication, RenetClient, RenetConnectionConfig},
     run_if_client_connected, RenetClientPlugin,
@@ -14,7 +16,11 @@ use leafwing_input_manager::{
 
 use super::shared::{Lobby, NetworkID, ServerMessages};
 
-use crate::{input::Action, player::Player};
+use crate::{
+    input::Action,
+    movement::Movement,
+    player::{Player, PlayerBundle, PlayerCam},
+};
 pub struct ClientPlugin;
 
 pub struct MyNetworkID(u64);
@@ -55,10 +61,10 @@ fn sync_inputs(
 
 fn client_sync_players(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
     mut client: ResMut<RenetClient>,
     mut lobby: ResMut<Lobby>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     while let Some(message) = client.receive_message(0) {
         use Action::*;
@@ -67,36 +73,67 @@ fn client_sync_players(
         match server_message {
             ServerMessages::PlayerConnected { id } => {
                 println!("Player {} connected.", id);
+                let mesh_handle =
+                    meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
+                let material_handle =
+                    materials.add(Color::rgb(0.8, 0.7, 0.6).into());
                 let player_id = commands
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            color: Color::RED,
-                            ..Default::default()
-                        },
-                        transform: Transform {
-                            scale: Vec3::new(16.0, 16.0, 1.0),
-                            translation: Vec3::new(0.0, 0.0, 10.0), // REVIEW -  probaly dont want to spawn them here before i got cordinates
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .insert(Player { id: id })
-                    .insert(NetworkID(id))
+                    .spawn_bundle(PlayerBundle::new(
+                        id,
+                        mesh_handle,
+                        material_handle,
+                    ))
                     .id();
 
                 if client.client_id() == id {
-                    commands.entity(player_id).insert_bundle(
-                        InputManagerBundle {
+                    commands
+                        .entity(player_id)
+                        .insert_bundle(InputManagerBundle {
                             input_map: InputMap::new([
                                 (A, MoveLeft),
                                 (D, MoveRight),
+                                (W, MoveUp),
+                                (S, MoveDown),
                                 (Space, Jump),
                             ])
                             .insert(MouseButton::Left, Shoot)
                             .build(),
                             action_state: ActionState::default(),
-                        },
-                    );
+                        })
+                        .with_children(|commands| {
+                            commands
+                                .spawn_bundle(Camera3dBundle {
+                                    transform: Transform::from_xyz(
+                                        0.0, 0.5, 0.0,
+                                    ),
+                                    projection: Projection::Perspective(
+                                        PerspectiveProjection {
+                                            fov: 90.0
+                                                * (std::f32::consts::PI
+                                                    / 180.0),
+                                            aspect_ratio: 1.0,
+                                            near: 0.3,
+                                            far: 1000.0,
+                                        },
+                                    ),
+                                    ..default()
+                                })
+                                .insert(PlayerCam)
+                                .with_children(|commands| {
+                                    let mesh = meshes
+                                        .add(shape::Cube { size: 0.5 }.into());
+
+                                    commands.spawn_bundle(PbrBundle {
+                                        mesh,
+                                        material: materials
+                                            .add(Color::WHITE.into()),
+                                        transform: Transform::from_xyz(
+                                            0.0, 0.0, -0.5,
+                                        ),
+                                        ..default()
+                                    });
+                                });
+                        });
                 }
 
                 lobby.players.insert(id, player_id);

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 use leafwing_input_manager::{
     action_state::ActionDiff, prelude::InputManagerPlugin,
     systems::process_action_diffs,
@@ -13,7 +14,12 @@ use bevy_renet::{
     RenetServerPlugin,
 };
 
-use crate::{input::Action, network::shared::ServerMessages, player::Player};
+use crate::{
+    input::Action,
+    movement::Movement,
+    network::shared::ServerMessages,
+    player::{Player, PlayerBundle},
+};
 
 use crate::network::shared::Lobby;
 
@@ -69,6 +75,8 @@ fn update_system(
     mut commands: Commands,
     mut lobby: ResMut<Lobby>,
     mut server: ResMut<RenetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Main server events
     for event in server_events.iter() {
@@ -76,23 +84,17 @@ fn update_system(
             ServerEvent::ClientConnected(id, _) => {
                 println!("Client {} connected", id);
                 // spawn player on server
-                let player_entity = commands
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            color: Color::BLUE,
-                            ..Default::default()
-                        },
-                        transform: Transform {
-                            scale: Vec3::new(16.0, 16.0, 1.0),
-                            translation: Vec3::new(0.0, 0.0, 10.0),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .insert(Player { id: *id })
-                    .insert(NetworkID(*id))
+                let mesh_handle =
+                    meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
+                let material_handle =
+                    materials.add(Color::rgb(0.8, 0.7, 0.6).into());
+                let player_id = commands
+                    .spawn_bundle(PlayerBundle::new(
+                        *id,
+                        mesh_handle,
+                        material_handle,
+                    ))
                     .id();
-
                 // init players on client
                 for &player_id in lobby.players.keys() {
                     let message =
@@ -104,7 +106,7 @@ fn update_system(
                 }
 
                 // Insert player network to entity mapping on server
-                lobby.players.insert(*id, player_entity);
+                lobby.players.insert(*id, player_id);
 
                 // Init player on other clients
                 let message =
