@@ -597,11 +597,12 @@ dependencies = [
 
 [[package]]
 name = "bevy_framepace"
-version = "0.7.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "327027bd161a95a03962d03ba4cf71013a8d2500bf288838f6046278806cb383"
+checksum = "b5ae983870b93cdc5bc3484dd6928d7c3217e4a31ccbe4dfb0680dc00c06b47f"
 dependencies = [
- "bevy 0.8.1",
+ "bevy 0.9.0",
+ "wasm_thread",
 ]
 
 [[package]]
@@ -735,7 +736,7 @@ dependencies = [
  "bevy_ui",
  "bevy_utils 0.8.0",
  "bevy_window 0.8.0",
- "bevy_winit",
+ "bevy_winit 0.8.0",
  "ndk-glue 0.5.2",
 ]
 
@@ -765,6 +766,7 @@ dependencies = [
  "bevy_transform 0.9.0",
  "bevy_utils 0.9.0",
  "bevy_window 0.9.0",
+ "bevy_winit 0.9.0",
  "ndk-glue 0.7.0",
 ]
 
@@ -1354,7 +1356,27 @@ dependencies = [
  "raw-window-handle 0.4.3",
  "wasm-bindgen",
  "web-sys",
- "winit",
+ "winit 0.26.1",
+]
+
+[[package]]
+name = "bevy_winit"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebc7b4e4f83e268dcbd6f9c4e1c18f7382e457f5f1b160da4c85d9a3f489771a"
+dependencies = [
+ "approx",
+ "bevy_app 0.9.0",
+ "bevy_ecs 0.9.0",
+ "bevy_input 0.9.0",
+ "bevy_math 0.9.0",
+ "bevy_utils 0.9.0",
+ "bevy_window 0.9.0",
+ "crossbeam-channel",
+ "raw-window-handle 0.5.0",
+ "wasm-bindgen",
+ "web-sys",
+ "winit 0.27.5",
 ]
 
 [[package]]
@@ -2140,16 +2162,52 @@ dependencies = [
 ]
 
 [[package]]
-name = "futures-core"
-version = "0.3.21"
+name = "futures"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c09fd04b7e4073ac7156a9539b57a484a8ea920f79c7c675d05d289ab6110d3"
+checksum = "38390104763dc37a5145a53c29c63c1290b5d316d6086ec32c293f6736051bb0"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "futures-executor",
+ "futures-io",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+]
+
+[[package]]
+name = "futures-channel"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52ba265a92256105f45b719605a571ffe2d1f0fea3807304b522c1d778f79eed"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+]
+
+[[package]]
+name = "futures-core"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04909a7a7e4633ae6c4a9ab280aeb86da1236243a77b694a49eacd659a4bd3ac"
+
+[[package]]
+name = "futures-executor"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7acc85df6714c176ab5edf386123fafe217be88c0840ec11f199441134a074e2"
+dependencies = [
+ "futures-core",
+ "futures-task",
+ "futures-util",
+]
 
 [[package]]
 name = "futures-io"
-version = "0.3.21"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc4045962a5a5e935ee2fdedaa4e08284547402885ab326734432bed5d12966b"
+checksum = "00f5fb52a06bdcadeb54e8d3671f8888a39697dcb0b81b23b55174030427f4eb"
 
 [[package]]
 name = "futures-lite"
@@ -2167,10 +2225,45 @@ dependencies = [
 ]
 
 [[package]]
-name = "futures-sink"
-version = "0.3.21"
+name = "futures-macro"
+version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21163e139fa306126e6eedaf49ecdb4588f939600f0b1e770f4205ee4b7fa868"
+checksum = "bdfb8ce053d86b91919aad980c220b1fb8401a9394410e1c289ed7e66b61835d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "futures-sink"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39c15cf1a4aa79df40f1bb462fb39676d0ad9e366c2a33b590d7c66f4f81fcf9"
+
+[[package]]
+name = "futures-task"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ffb393ac5d9a6eaa9d3fdf37ae2776656b706e200c8e16b1bdb227f5198e6ea"
+
+[[package]]
+name = "futures-util"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "197676987abd2f9cadff84926f410af1c183608d36641465df73ae8211dc65d6"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "futures-io",
+ "futures-macro",
+ "futures-sink",
+ "futures-task",
+ "memchr",
+ "pin-project-lite",
+ "pin-utils",
+ "slab",
+]
 
 [[package]]
 name = "fxhash"
@@ -2969,7 +3062,7 @@ dependencies = [
  "image",
  "leafwing-input-manager",
  "serde",
- "winit",
+ "winit 0.26.1",
 ]
 
 [[package]]
@@ -3032,7 +3125,7 @@ dependencies = [
  "bevy 0.8.1",
  "image",
  "my-game",
- "winit",
+ "winit 0.26.1",
 ]
 
 [[package]]
@@ -3485,6 +3578,12 @@ name = "pin-project-lite"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
+
+[[package]]
+name = "pin-utils"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
@@ -4358,6 +4457,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasm_thread"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a52fc987e67957cab58160d1ea273a2886972ef6f59c7fa0c02e9fe2c8e11706"
+dependencies = [
+ "async-channel",
+ "futures",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "wayland-client"
 version = "0.29.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4734,6 +4846,35 @@ dependencies = [
  "wayland-protocols",
  "web-sys",
  "winapi",
+ "x11-dl",
+]
+
+[[package]]
+name = "winit"
+version = "0.27.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb796d6fbd86b2fd896c9471e6f04d39d750076ebe5680a3958f00f5ab97657c"
+dependencies = [
+ "bitflags",
+ "cocoa",
+ "core-foundation 0.9.3",
+ "core-graphics 0.22.3",
+ "dispatch",
+ "instant",
+ "libc",
+ "log",
+ "mio",
+ "ndk 0.7.0",
+ "ndk-glue 0.7.0",
+ "objc",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "percent-encoding",
+ "raw-window-handle 0.4.3",
+ "raw-window-handle 0.5.0",
+ "wasm-bindgen",
+ "web-sys",
+ "windows-sys",
  "x11-dl",
 ]
 
